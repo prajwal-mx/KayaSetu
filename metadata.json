@@ -1,0 +1,10 @@
+{
+  "name": "KayaSetu PHC Triage",
+  "description": "Offline-first bilingual (English & Kannada) clinical skin triage and referral decision-support app for ASHA workers and Rural PHC Medical Officers.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

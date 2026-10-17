@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#FAF8F5" />
+  <title>KayaSetu — ASHA &amp; Rural PHC Clinical Triage Aid</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- TOP OFFLINE-FIRST & SAFETY STATUS BAR -->
+  <div class="top-status-strip no-print">
+    <div class="status-strip-inner">
+      <div class="offline-ready-pill" id="offlineStatusPill">
+        <span class="status-dot dot-green"></span>
+        <span id="offlineStatusText">Offline AI Ready · 4.3 MB Model on Device</span>
+      </div>
+      <div class="top-model-telemetry" id="topModelMetric">
+        PAD-UFES-20 ONNX · 84.6% Acc · ECE 0.0314
+      </div>
+    </div>
+  </div>
+
+  <!-- STICKY HEADER WITH BRAND + BILINGUAL (ENGLISH / KANNADA) SWITCHER -->
+  <header class="app-header no-print">
+    <div class="header-container">
+      <div class="brand-group" onclick="goToStep(1)" role="button" tabindex="0">
+        <div class="brand-emblem" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12h8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <span class="brand-wordmark">kayasetu</span>
+            <span class="brand-badge" id="brandBadgeText">ASHA &amp; PHC Field Aid</span>
+          </div>
+          <p class="brand-subtitle" id="brandSubText">Coastal &amp; Rural Karnataka Dermatology Triage</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- BILINGUAL SEGMENTED TOGGLE: ENGLISH | KANNADA -->
+        <div class="lang-segmented" role="group" aria-label="Language selection">
+          <button type="button" class="lang-btn active" id="langBtnEn" onclick="setLanguage('en')">
+            English
+          </button>
+          <button type="button" class="lang-btn" id="langBtnKn" onclick="setLanguage('kn')">
+            ಕನ್ನಡ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-STEP WIZARD PROGRESS PILLS -->
+    <nav class="wizard-step-bar" aria-label="Triage Wizard Steps">
+      <button type="button" class="step-pill active" id="stepTab1" onclick="goToStep(1)">
+        <span class="step-num">1</span>
+        <span class="step-label" id="stepLabel1">Village Queue</span>
+      </button>
+      <button type="button" class="step-pill" id="stepTab2" onclick="goToStep(2)">
+        <span class="step-num">2</span>
+        <span class="step-label" id="stepLabel2">Skin Photo</span>
+      </button>
+      <button type="button" class="step-pill" id="stepTab3" onclick="goToStep(3)">
+        <span class="step-num">3</span>
+        <span class="step-label" id="stepLabel3">7 Questions</span>
+      </button>
+      <button type="button" class="step-pill" id="stepTab4" onclick="goToStep(4)">
+        <span class="step-num">4</span>
+        <span class="step-label" id="stepLabel4">Triage Result</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- MAIN 4-SCREEN MOBILE-FIRST WORKSPACE -->
+  <main class="wizard-main no-print">
+
+    <!-- ====================================================================
+         SCREEN 1: HOME & VILLAGE SYNC QUEUE
+         ==================================================================== -->
+    <section class="wizard-screen active" id="screen1" aria-labelledby="homeHeading">
+      <div class="hero-intake-card">
+        <div class="eyebrow-pill" id="screen1Eyebrow">Step 01 · 30-Second Field Triage</div>
+        <h1 class="serif-display" id="homeHeading">Screen a skin spot in 3 simple steps.</h1>
+        <p class="body-muted" id="homeSubcopy">
+          Designed for one-handed use in bright village sunlight. Works 100% offline without internet and prepares a ready-to-share PHC referral token.
+        </p>
+
+        <!-- GIANT MATTE-CHARCOAL PILL BUTTON IN THUMB ZONE -->
+        <button type="button" class="btn-giant-primary" id="startNewScreeningBtn" onclick="startNewPatientFlow()">
+          <span class="btn-icon-circle" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </span>
+          <span class="btn-giant-text" id="btnNewScreeningText">New Patient Screening</span>
+          <span class="btn-giant-arrow" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- QUICK BENCHMARK CASE PRESETS FOR INSTANT FIELD / JUDGE DEMO -->
+        <div class="benchmark-preset-box">
+          <div class="preset-header-row">
+            <span class="preset-label" id="presetSectionTitle">Or Load Pre-Validated Clinical Case:</span>
+            <span class="preset-sub" id="presetSectionSub">1-Tap Instant Demo</span>
+          </div>
+          <div class="preset-grid" id="sampleButtons">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TODAY'S VILLAGE VISITS QUEUE -->
+      <div class="surface-card">
+        <div class="card-header-flex">
+          <div>
+            <div class="card-eyebrow" id="queueEyebrow">Zero-Signal Local Storage</div>
+            <h2 class="serif-title" id="queueTitle">Today’s Village Visits</h2>
+          </div>
+          <div class="offline-sync-badge" id="offlineQueueBadge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span id="offlineReadyBadgeText">Offline Ready</span>
+          </div>
+        </div>
+        <p class="card-subcopy" id="queueSubtitle">
+          Tap any patient record below to review their referral card or share on WhatsApp when back at the PHC.
+        </p>
+
+        <div class="village-visit-list" id="villageVisitList">
+          <!-- Populated from local queue -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 2: GUIDED CAMERA VIEWFINDER & QUALITY GATE
+         ==================================================================== -->
+    <section class="wizard-screen" id="screen2" aria-labelledby="cameraHeading">
+      <div class="surface-card camera-wizard-card">
+        <div class="card-header-flex">
+          <div>
+            <div class="card-eyebrow" id="screen2Eyebrow">Step 02 · Bare-Smartphone Capture</div>
+            <h2 class="serif-title" id="cameraHeading">Guided Skin Viewfinder</h2>
+          </div>
+          <span class="distance-pill" id="distanceBadgeText">1 Hand-Span (15 cm)</span>
+        </div>
+
+        <!-- 3 LIVE TRAFFIC-LIGHT PILLS AT TOP -->
+        <div class="traffic-lights-row" role="status" aria-live="polite">
+          <div class="traffic-pill pass" id="pillLight">
+            <span class="traffic-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+              </svg>
+            </span>
+            <span id="pillLightText">Light: Good</span>
+          </div>
+
+          <div class="traffic-pill pass" id="pillGlare">
+            <span class="traffic-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            <span id="pillGlareText">Glare: OK</span>
+          </div>
+
+          <div class="traffic-pill pass" id="pillFocus">
+            <span class="traffic-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </span>
+            <span id="pillFocusText">Focus: Steady</span>
+          </div>
+        </div>
+
+        <!-- VIEWFINDER CONTAINER WITH CIRCULAR TARGET RING -->
+        <div class="viewfinder-stage" id="viewfinderStage">
+          <img id="viewfinderPreviewImg" class="viewfinder-image" alt="Patient skin lesion preview" src="" />
+          <video id="cameraVideo" class="viewfinder-video hidden" autoplay playsinline muted></video>
+
+          <!-- CIRCULAR TARGET RING OVERLAY -->
+          <div class="target-ring-overlay">
+            <div class="target-circle">
+              <span class="crosshair-tick top"></span>
+              <span class="crosshair-tick bottom"></span>
+              <span class="crosshair-tick left"></span>
+              <span class="crosshair-tick right"></span>
+            </div>
+            <div class="viewfinder-guide-banner" id="viewfinderGuideText">
+              Keep the skin spot inside the circle (1 hand-span / 15 cm away)
+            </div>
+          </div>
+
+          <!-- IMMEDIATE QUALITY GATE WARNING BANNER (SHOWN WHEN BLUR < 35 OR GLARE > 12%) -->
+          <div class="quality-retake-overlay hidden" id="qualityRetakeBanner">
+            <div class="retake-alert-card">
+              <div class="retake-icon-wrap" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div class="retake-copy">
+                <strong id="retakeBannerTitle">Photo is blurry — Tap to Retake</strong>
+                <span id="retakeBannerSub">Hold phone steady 15 cm from skin in indirect daylight.</span>
+              </div>
+              <button type="button" class="btn-retake-now" id="retakeActionBtn" onclick="handleRetakeClearPhoto()">
+                Retake
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMERA CAPTURE & GALLERY UPLOAD BUTTONS -->
+        <div class="camera-controls-grid">
+          <button type="button" class="btn-pill-secondary" id="liveCameraBtn" onclick="toggleLiveCamera()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <span id="liveCameraBtnText">Open Phone Camera</span>
+          </button>
+
+          <label class="btn-pill-secondary upload-label-btn" for="imageInput">
+            <input type="file" id="imageInput" accept="image/*" capture="environment" />
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span id="uploadFileName">Upload Skin Photo</span>
+          </label>
+        </div>
+
+        <!-- UNSEEN DATA PERTURBATION SANDBOX -->
+        <div class="unseen-sandbox" id="unseenTestSection">
+          <div class="sandbox-label" id="sandboxTitleText">Test Field Conditions on Current Photo:</div>
+          <div class="sandbox-pills">
+            <button type="button" class="chip-action" onclick="applyUnseenPerturbation('darker_skin')">
+              <span id="perturbDarkText">+ Darker Melanin Tone</span>
+            </button>
+            <button type="button" class="chip-action" onclick="applyUnseenPerturbation('glare_flash')">
+              <span id="perturbGlareText">+ Flash Glare Spot</span>
+            </button>
+            <button type="button" class="chip-action" onclick="applyUnseenPerturbation('camera_shake')">
+              <span id="perturbBlurText">+ Hand Shake Blur</span>
+            </button>
+            <button type="button" class="chip-action chip-reset" onclick="resetCurrentSampleImage()">
+              <span id="perturbResetText">Reset Original</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PROCEED TO QUESTIONS CTA -->
+        <div class="wizard-footer-nav">
+          <button type="button" class="btn-pill-light" onclick="goToStep(1)" id="backToStep1Btn">
+            Back
+          </button>
+          <button type="button" class="btn-pill-dark btn-next-step" onclick="goToStep(3)" id="toStep3Btn">
+            <span id="toStep3BtnText">Next: Ask 7 Questions</span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 3: ILLUSTRATED YES/NO TAP CARDS, AGE PILLS & BODY LOCATION
+         ==================================================================== -->
+    <section class="wizard-screen" id="screen3" aria-labelledby="questionsHeading">
+      <div class="surface-card">
+        <div class="card-header-flex">
+          <div>
+            <div class="card-eyebrow" id="screen3Eyebrow">Step 03 · ASHA 30-Second Checklist</div>
+            <h2 class="serif-title" id="questionsHeading">Patient Details &amp; Symptoms</h2>
+          </div>
+          <button type="button" class="text-link-btn" id="clearSymptomsBtn" onclick="clearAllSymptoms()">
+            Clear all
+          </button>
+        </div>
+
+        <!-- PATIENT IDENTIFIER & VILLAGE TAG -->
+        <div class="patient-meta-grid">
+          <div class="meta-input-group">
+            <label for="patientNameInput" class="field-label" id="patientNameLabel">Patient Name / Token</label>
+            <input type="text" id="patientNameInput" class="rounded-text-input" placeholder="e.g., Ramesh Poojary" value="Ramesh Poojary" />
+          </div>
+          <div class="meta-input-group">
+            <label for="patientVillageInput" class="field-label" id="patientVillageLabel">Village / PHC</label>
+            <input type="text" id="patientVillageInput" class="rounded-text-input" placeholder="e.g., Bantwal PHC" value="Bantwal PHC" />
+          </div>
+        </div>
+
+        <!-- QUICK-TAP AGE GROUP PILLS -->
+        <div class="selector-block">
+          <div class="selector-label-row">
+            <span class="field-label" id="ageGroupLabel">Patient Age Group</span>
+            <span class="age-Exact-badge"><span id="ageDisplayVal">61</span> <span id="ageYearsUnit">yrs</span></span>
+          </div>
+          <input type="hidden" id="ageInput" value="61" />
+          <div class="age-pills-grid" role="group" aria-label="Age group quick select">
+            <button type="button" class="age-pill-btn" data-age="16" onclick="selectAgePill(16, this)">&lt;20</button>
+            <button type="button" class="age-pill-btn" data-age="28" onclick="selectAgePill(28, this)">20–35</button>
+            <button type="button" class="age-pill-btn" data-age="42" onclick="selectAgePill(42, this)">36–49</button>
+            <button type="button" class="age-pill-btn active" data-age="61" onclick="selectAgePill(61, this)">50–65</button>
+            <button type="button" class="age-pill-btn" data-age="72" onclick="selectAgePill(72, this)">65+</button>
+          </div>
+        </div>
+
+        <!-- BODY-LOCATION QUICK TAP (FACE / ARM / LEG / FOOT / TRUNK) -->
+        <div class="selector-block">
+          <div class="selector-label-row">
+            <span class="field-label" id="bodyLocLabel">Where is the skin spot?</span>
+            <span class="body-loc-selected" id="bodyLocSelectedText">Lower Leg / Foot</span>
+          </div>
+          <div class="body-parts-grid" role="group" aria-label="Body location selection">
+            <button type="button" class="body-part-btn" data-part="Face / Head" onclick="selectBodyPart('Face / Head', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <circle cx="12" cy="10" r="6"/>
+                <path d="M6 21v-1a6 6 0 0 1 12 0v1"/>
+              </svg>
+              <span id="partFaceText">Face</span>
+            </button>
+            <button type="button" class="body-part-btn" data-part="Arm / Hand" onclick="selectBodyPart('Arm / Hand', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+                <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+                <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+              </svg>
+              <span id="partArmText">Arm</span>
+            </button>
+            <button type="button" class="body-part-btn active" data-part="Lower Leg" onclick="selectBodyPart('Lower Leg', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M10 3v12l-2 6h6l1-6V3z"/>
+              </svg>
+              <span id="partLegText">Leg</span>
+            </button>
+            <button type="button" class="body-part-btn" data-part="Foot / Sole" onclick="selectBodyPart('Foot / Sole', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M7 18c-2.2 0-4-1.8-4-4 0-1.5.8-2.8 2-3.4L8 4h6l1 9h3a3 3 0 0 1 3 3v2H7z"/>
+              </svg>
+              <span id="partFootText">Foot</span>
+            </button>
+            <button type="button" class="body-part-btn" data-part="Trunk / Back" onclick="selectBodyPart('Trunk / Back', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <rect x="6" y="4" width="12" height="16" rx="3"/>
+                <line x1="12" y1="4" x2="12" y2="20"/>
+              </svg>
+              <span id="partTrunkText">Trunk</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 7 LARGE ILLUSTRATED YES/NO TAP CARDS WITH AUDIO SPEAKER BUTTONS -->
+        <div class="tap-cards-header">
+          <span class="field-label" id="tapCardsHeaderTitle">Tap Each Question to Mark Yes or No</span>
+          <span class="tap-cards-hint" id="tapCardsHeaderSub">Tap speaker icon to read question aloud</span>
+        </div>
+
+        <div class="symptom-tap-cards" id="symptomTapCardsContainer">
+          <!-- Card 1: Bleeding -->
+          <div class="symptom-tap-card active" id="card_bleeding" onclick="toggleSymptomCard('chk_bleeding')">
+            <input type="checkbox" id="chk_bleeding" class="sr-only-check" checked />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_bleeding">Is it bleeding or oozing fluid?</div>
+              <div class="tap-card-sub" id="sub_bleeding">Spontaneous blood or pus on cloth</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'bleeding')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_bleeding">YES</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Rapid Growth -->
+          <div class="symptom-tap-card active" id="card_rapid_growth" onclick="toggleSymptomCard('chk_rapid_growth')">
+            <input type="checkbox" id="chk_rapid_growth" class="sr-only-check" checked />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_rapid_growth">Has it grown fast or changed shape?</div>
+              <div class="tap-card-sub" id="sub_rapid_growth">Spreading edges or darkening color</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'rapid_growth')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_rapid_growth">YES</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Pain / Ulcer -->
+          <div class="symptom-tap-card active" id="card_pain_ulcer" onclick="toggleSymptomCard('chk_pain_ulcer')">
+            <input type="checkbox" id="chk_pain_ulcer" class="sr-only-check" checked />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_pain_ulcer">Is it painful or an open sore?</div>
+              <div class="tap-card-sub" id="sub_pain_ulcer">Tender to touch or broken skin crater</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'pain_ulcer')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_pain_ulcer">YES</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Duration > 1 Month -->
+          <div class="symptom-tap-card active" id="card_duration_long" onclick="toggleSymptomCard('chk_duration_long')">
+            <input type="checkbox" id="chk_duration_long" class="sr-only-check" checked />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_duration_long">Has it stayed unhealed for &gt; 1 month?</div>
+              <div class="tap-card-sub" id="sub_duration_long">Present for more than 4 weeks</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'duration_long')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_duration_long">YES</span>
+            </div>
+          </div>
+
+          <!-- Card 5: Diabetes -->
+          <div class="symptom-tap-card active" id="card_diabetes" onclick="toggleSymptomCard('chk_diabetes')">
+            <input type="checkbox" id="chk_diabetes" class="sr-only-check" checked />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_diabetes">Does the patient have Sugar (Diabetes)?</div>
+              <div class="tap-card-sub" id="sub_diabetes">High blood sugar or delayed wound healing</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'diabetes')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_diabetes">YES</span>
+            </div>
+          </div>
+
+          <!-- Card 6: Fever / Swelling -->
+          <div class="symptom-tap-card" id="card_fever" onclick="toggleSymptomCard('chk_fever')">
+            <input type="checkbox" id="chk_fever" class="sr-only-check" />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_fever">Is there fever or swelling?</div>
+              <div class="tap-card-sub" id="sub_fever">Hot skin or swollen lumps near neck/groin</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'fever')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_fever">NO</span>
+            </div>
+          </div>
+
+          <!-- Card 7: Prominent Itching -->
+          <div class="symptom-tap-card" id="card_itching" onclick="toggleSymptomCard('chk_itching')">
+            <input type="checkbox" id="chk_itching" class="sr-only-check" />
+            <div class="tap-card-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M9 12c0-1.66 1.34-3 3-3s3 1.34 3 3"/>
+              </svg>
+            </div>
+            <div class="tap-card-body">
+              <div class="tap-card-question" id="q_itching">Is it very itchy (like ringworm)?</div>
+              <div class="tap-card-sub" id="sub_itching">Surface scratching or ring-like scaling</div>
+            </div>
+            <div class="tap-card-right">
+              <button type="button" class="btn-card-audio" onclick="speakSymptomQuestion(event, 'itching')" aria-label="Read question aloud">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              </button>
+              <span class="yes-no-badge" id="badge_chk_itching">NO</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-footer-nav">
+          <button type="button" class="btn-pill-light" onclick="goToStep(2)" id="backToStep2Btn">
+            Back
+          </button>
+          <button type="button" class="btn-pill-dark btn-next-step" id="runScreenBtn" onclick="completeScreeningAndShowResults()">
+            <span id="viewResultBtnText">Calculate Triage Advice</span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 4: TWO-LAYER ACTION CARD + WHATSAPP SHARE + DOCTOR DRAWER
+         ==================================================================== -->
+    <section class="wizard-screen" id="screen4" aria-labelledby="resultBannerTitle">
+      <!-- TOP LAYER: ASHA WORKER & PATIENT SIMPLE ACTION BANNER -->
+      <div class="action-hero-banner RED" id="referralCard">
+        <div class="action-banner-top">
+          <div>
+            <span class="tier-pill" id="tierBadge">HIGH RISK · REFER IMMEDIATELY</span>
+            <div class="case-token-meta" id="caseIdDisplay">CASE ID: PHC-LOADING</div>
+          </div>
+          <div class="score-badge-box">
+            <div class="score-number" id="riskHeadline">--%</div>
+            <div class="score-caption" id="thresholdCaption">Threshold &ge; 65%</div>
+          </div>
+        </div>
+
+        <h2 class="action-headline" id="resultBannerTitle">
+          Refer to District Dermatologist at Wenlock Hospital
+        </h2>
+        <p class="clinical-guidance-copy" id="recommendationText"></p>
+
+        <!-- PROMINENT VOICE-FIRST GUIDANCE BUTTON (READ ALOUD IN EN-IN / KN-IN) -->
+        <button type="button" class="btn-listen-advice" id="voiceBtn" onclick="speakRecommendation()">
+          <span class="listen-icon-circle" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </span>
+          <span id="listenAdviceBtnText">Listen to Advice (Read Aloud to Patient)</span>
+        </button>
+
+        <!-- THRESHOLD PROGRESS METER -->
+        <div class="threshold-meter-wrap">
+          <div class="threshold-labels">
+            <span id="meterLabel0">0% · Routine Care</span>
+            <span class="marker-35" id="meterLabel35">35% · PHC Doctor</span>
+            <span class="marker-65" id="meterLabel65">65% · Specialist</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="riskProgressFill" style="width: 0%"></div>
+            <div class="threshold-line" style="left: 35%"></div>
+            <div class="threshold-line strong" style="left: 65%"></div>
+          </div>
+        </div>
+
+        <!-- PRIMARY FIELD ACTIONS: WHATSAPP SHARE + SAVE/PRINT REFERRAL TOKEN -->
+        <div class="field-actions-grid">
+          <button type="button" class="btn-whatsapp-share" id="whatsappShareBtn" onclick="shareOnWhatsApp()">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            <span id="whatsappBtnText">Share Referral Slip on WhatsApp</span>
+          </button>
+
+          <button type="button" class="btn-save-token" id="printSlipBtn" onclick="saveVisitAndOpenSlip()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            <span id="saveTokenBtnText">Save &amp; Print Referral Token</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- BOTTOM ACCORDION: FOR PHC DOCTOR TECHNICAL DRAWER -->
+      <div class="doctor-drawer-card">
+        <button type="button" class="doctor-drawer-toggle" id="doctorDrawerBtn" aria-expanded="false" onclick="toggleDoctorDrawer()">
+          <div class="drawer-toggle-left">
+            <span class="drawer-badge">PHC MO View</span>
+            <span class="drawer-toggle-title" id="doctorDrawerTitle">
+              For PHC Doctor: View AI Heatmaps &amp; ABCD Math
+            </span>
+          </div>
+          <span class="drawer-chevron" id="doctorDrawerChevron" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="doctor-drawer-content hidden" id="doctorDrawerContent">
+          <!-- TELEMETRY CHIPS -->
+          <div class="telemetry-strip">
+            <div class="telemetry-chip">
+              <span class="telemetry-dot" id="dotQuality">✓</span>
+              <span id="chipQuality">Camera Gate: PASS</span>
+            </div>
+            <div class="telemetry-chip">
+              <span id="chipSkinTone">Fitzpatrick Type V</span>
+            </div>
+            <div class="telemetry-chip">
+              <span id="chipErythema">Melanin Boost ×1.28</span>
+            </div>
+            <div class="telemetry-chip">
+              <span id="inferenceModeBadge">ONNX Multimodal + CIE-L*a*b* Active</span>
+            </div>
+          </div>
+
+          <!-- 4-STAGE EXPLAINABLE VISION PIPELINE -->
+          <div class="doctor-section" id="visionSection">
+            <div class="card-eyebrow">Explainable Computer Vision Pipeline</div>
+            <h3 class="serif-subtitle">4-Stage Melanin-Compensated Image Analysis</h3>
+            <div class="vision-grid-4">
+              <figure class="vision-stage-card">
+                <div class="stage-tag">01 · Raw Smartphone ROI</div>
+                <img id="imgOrig" alt="Original bare-smartphone skin capture" src="" />
+                <figcaption>Laplacian blur &amp; HSV glare gate checked</figcaption>
+              </figure>
+              <figure class="vision-stage-card">
+                <div class="stage-tag">02 · CIE-L*a*b* CLAHE</div>
+                <img id="imgNorm" alt="Gray-World and CLAHE illumination normalized image" src="" />
+                <figcaption>Damped Gray-World + L* contrast normalization</figcaption>
+              </figure>
+              <figure class="vision-stage-card">
+                <div class="stage-tag">03 · Otsu Lesion Contour</div>
+                <img id="imgSeg" alt="Lesion boundary segmentation contour" src="" />
+                <figcaption>Perilesional healthy skin isolated for ITA°</figcaption>
+              </figure>
+              <figure class="vision-stage-card">
+                <div class="stage-tag">04 · Attention Saliency</div>
+                <img id="imgHeat" alt="Chromophore erythema and darkness attention map" src="" />
+                <figcaption>Melanin-adjusted erythema &amp; pigment focus</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- ABCD MORPHOLOGICAL SCORES & BAYESIAN LOG-ODDS CONTRIBUTIONS -->
+          <div class="doctor-math-grid" id="metricsSection">
+            <div class="math-panel">
+              <div class="card-eyebrow">Morphological Geometry</div>
+              <h4 class="serif-subtitle">ABCD Dermoscopic Biomarkers</h4>
+              <ul class="metric-bars-list" id="abcdList"></ul>
+            </div>
+
+            <div class="math-panel">
+              <div class="card-eyebrow">Single-Pass Bayesian Fusion</div>
+              <h4 class="serif-subtitle">Log-Odds Risk Contributions (Δ)</h4>
+              <ul class="metric-bars-list" id="contribList"></ul>
+            </div>
+          </div>
+
+          <!-- SARVAM-STYLE WORKFLOW PATHWAY SUMMARY -->
+          <div class="sage-workflow-canvas">
+            <div class="workflow-nodes-grid">
+              <div class="wf-source-node">
+                <div class="wf-node-header">
+                  <span class="wf-node-tag">Multimodal Intake Node</span>
+                </div>
+                <div class="wf-node-title" id="wfSourceTitle">Bare-Phone ROI + Symptoms</div>
+                <div class="wf-telemetry-rows">
+                  <div class="wf-port-row">
+                    <span>Visual Prior (ONNX + ABCD)</span>
+                    <strong id="wfVisualPrior">--%</strong>
+                  </div>
+                  <div class="wf-port-row">
+                    <span>Clinical Log-Odds Shift</span>
+                    <strong id="wfClinShift">--</strong>
+                  </div>
+                  <div class="wf-port-row">
+                    <span>Skin Tone (Fitzpatrick ITA°)</span>
+                    <strong id="wfSkinTone">--</strong>
+                  </div>
+                </div>
+              </div>
+
+              <svg class="wf-connector-svg" viewBox="0 0 120 210" preserveAspectRatio="none" aria-hidden="true">
+                <path id="pathHigh" class="wf-path" d="M 0 105 C 55 105, 55 35, 120 35" fill="none" />
+                <path id="pathMod" class="wf-path" d="M 0 105 C 55 105, 55 105, 120 105" fill="none" />
+                <path id="pathLow" class="wf-path" d="M 0 105 C 55 105, 55 175, 120 175" fill="none" />
+              </svg>
+
+              <div class="wf-target-stack">
+                <div class="wf-branch-node high" id="nodeHigh">
+                  <div class="wf-branch-title">Tier 1 · Refer to District Dermatologist (&ge; 65%)</div>
+                  <div class="wf-branch-sub">Urgent transfer to Wenlock Hospital Mangaluru for biopsy</div>
+                </div>
+                <div class="wf-branch-node mod" id="nodeMod">
+                  <div class="wf-branch-title">Tier 2 · PHC Medical Officer / eSanjeevani (35–64%)</div>
+                  <div class="wf-branch-sub">Schedule PHC MO review or tele-dermatology within 48h</div>
+                </div>
+                <div class="wf-branch-node low" id="nodeLow">
+                  <div class="wf-branch-title">Tier 3 · Routine PHC Care &amp; 7-Day Follow-Up (&lt; 35%)</div>
+                  <div class="wf-branch-sub" id="nodeLowSub">Provide hygiene counseling &amp; re-screen in 7 days</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECONDARY NAVIGATION AT BOTTOM OF RESULT SCREEN -->
+      <div class="result-bottom-actions">
+        <button type="button" class="btn-pill-light" onclick="goToStep(3)" id="editAnswersBtn">
+          Edit Symptoms
+        </button>
+        <button type="button" class="btn-pill-light" onclick="goToStep(1)" id="returnQueueBtn">
+          View Village Queue
+        </button>
+      </div>
+
+      <!-- NON-INTRUSIVE ALWAYS-VISIBLE SAFETY FOOTER -->
+      <footer class="safety-footer-pill" id="disclaimerBanner">
+        <span class="safety-dot"></span>
+        <span id="safetyFooterText">
+          Decision-Support Aid for PHC Triage — Final diagnosis by Medical Officer.
+        </span>
+      </footer>
+    </section>
+
+  </main>
+
+  <!-- PRINTABLE PHC REFERRAL TOKEN MODAL -->
+  <div class="modal-backdrop hidden" id="referralModal" role="dialog" aria-modal="true" aria-labelledby="modalSlipHeading">
+    <div class="modal-slip-card">
+      <div class="modal-top-bar no-print">
+        <span class="modal-tag" id="modalTopTag">Official PHC Referral Token</span>
+        <div class="modal-top-btns">
+          <button type="button" class="btn-pill-light" onclick="shareOnWhatsApp()">WhatsApp</button>
+          <button type="button" class="btn-pill-dark" onclick="window.print()">Print / Save PDF</button>
+          <button type="button" class="btn-close-modal" onclick="closeReferralSlipModal()" aria-label="Close modal">&times;</button>
+        </div>
+      </div>
+
+      <div class="printable-slip-body">
+        <div class="slip-header">
+          <div>
+            <div class="slip-eyebrow">KAYASETU · RURAL PRIMARY HEALTH CENTRE TRIAGE SLIP</div>
+            <h2 class="serif-title" id="modalSlipHeading">Clinical Dermatology Referral Token</h2>
+          </div>
+          <div class="slip-score-pill" id="slipScore">--%</div>
+        </div>
+
+        <div class="slip-meta-grid">
+          <div><span>Token ID:</span> <strong id="slipCaseId">--</strong></div>
+          <div><span>Date &amp; Time:</span> <strong id="slipDate">--</strong></div>
+          <div><span>Patient Name:</span> <strong id="slipPatientName">--</strong></div>
+          <div><span>Village / PHC:</span> <strong id="slipVillage">--</strong></div>
+          <div><span>Patient Age:</span> <strong id="slipAge">--</strong> yrs</div>
+          <div><span>Body Location:</span> <strong id="slipBodyPart">--</strong></div>
+          <div class="full-span"><span>Triage Tier:</span> <strong id="slipTier">--</strong></div>
+        </div>
+
+        <div class="slip-recommendation-box">
+          <div class="slip-section-label">Recommended Clinical Action (EN / ಕನ್ನಡ):</div>
+          <p id="slipRecommendation">--</p>
+          <p id="slipRecommendationKn" class="slip-kn-copy">--</p>
+        </div>
+
+        <div class="slip-images-row">
+          <div>
+            <span>Normalized Lesion Capture</span>
+            <img id="slipImgOrig" alt="Normalized lesion" src="" />
+          </div>
+          <div>
+            <span>Attention Saliency Map</span>
+            <img id="slipImgHeat" alt="Attention heatmap" src="" />
+          </div>
+        </div>
+
+        <div class="slip-telemetry-box">
+          <div><strong>Skin Tone &amp; Quality:</strong> <span id="slipSkinTelemetry">--</span></div>
+          <div><strong>ABCD Biomarkers:</strong> <span id="slipAbcdSummary">--</span></div>
+        </div>
+
+        <div class="slip-symptoms-box">
+          <div class="slip-section-label">Recorded Clinical Factors &amp; Bayesian Log-Odds:</div>
+          <ul id="slipSymptomsList"></ul>
+        </div>
+
+        <p class="slip-disclaimer" id="slipDisclaimer"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

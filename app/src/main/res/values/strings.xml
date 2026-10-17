@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KayaSetu PHC Triage</string>
+    <string name="offline_ready_badge">Offline AI Ready · 4.3 MB Model on Device</string>
+    <string name="brand_subtitle">Coastal &amp; Rural Karnataka Dermatology Triage</string>
+    <string name="btn_new_patient_screening">New Patient Screening</string>
+    <string name="todays_village_visits">Today’s Village Visits</string>
+    <string name="camera_guide_prompt">Keep the skin spot inside the circle (1 hand-span / 15 cm away)</string>
+    <string name="retake_blurry_prompt">Photo is blurry — Tap to Retake</string>
+    <string name="listen_to_advice">Listen to Advice (Read Aloud)</string>
+    <string name="share_whatsapp_slip">Share Referral Slip on WhatsApp</string>
+    <string name="save_referral_token">Save &amp; Print Referral Token</string>
+    <string name="doctor_drawer_header">For PHC Doctor: View AI Heatmaps &amp; ABCD Math</string>
+    <string name="safety_footer_disclaimer">Decision-Support Aid for PHC Triage — Final diagnosis by Medical Officer.</string>
+</resources>
