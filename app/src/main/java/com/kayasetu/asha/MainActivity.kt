@@ -56,6 +56,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.PanTool
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -676,11 +677,19 @@ private fun MinimalHomeScreen(
                     Text(
                         text = if (isKn) "ತಪಾಸಣೆ ಪ್ರಾರಂಭಿಸಿ" else "Start Skin Check",
                         style = MaterialTheme.typography.titleLarge,
-                        color = IvorySurface
+                        color = IvorySurface,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
             }
         }
+
+        // Explicit Clinical Decision-Support Disclaimer on Home Screen (PS 3.1 Deliverable 3)
+        ClinicalDecisionSupportDisclaimer(
+            isKn = isKn,
+            testTagName = "home_disclaimer_banner"
+        )
 
         // Saved Checks Section (Displays exact selected Age Group like <20, 20–35, etc.)
         if (visits.isNotEmpty()) {
@@ -1594,6 +1603,12 @@ private fun MinimalResultScreen(
     // Pure natural spoken sentence without any brackets, numbers, or abbreviations
     val naturalSpokenAdvice = "$simpleHeading. $simpleAdvice"
 
+    val disclaimerText = if (isKn) {
+        "ಗಮನಿಸಿ: ಇದು ಪ್ರಾಥಮಿಕ ತಪಾಸಣೆಯ ಸಹಾಯಕ ಸಾಧನ ಮಾತ್ರ, ವೈದ್ಯಕೀಯ ರೋಗನಿರ್ಣಯದ ಸಾಧನವಲ್ಲ."
+    } else {
+        "Disclaimer: This is a clinical decision-support aid for PHC staff, not a diagnostic device."
+    }
+
     val whatsappShareMessage = buildString {
         appendLine("*KayaSetu Skin Check Report*")
         if (state.patientName.isNotBlank()) {
@@ -1601,9 +1616,12 @@ private fun MinimalResultScreen(
         }
         appendLine("Age Group: ${state.ageGroup} yrs")
         appendLine("Body Area: ${state.bodyPart}")
+        appendLine("Risk Score: ${res.finalRiskPercentage}% | Refer to Specialist Threshold: ≥ 65%")
         appendLine("Action: $simpleHeading")
         appendLine()
         appendLine(simpleAdvice)
+        appendLine()
+        append(disclaimerText)
     }
 
     Column(
@@ -1612,30 +1630,30 @@ private fun MinimalResultScreen(
             .widthIn(max = 520.dp)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(11.dp),
+        verticalArrangement = Arrangement.spacedBy(9.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Main Clean Result Card (Sized so the entire screen fits without scrolling)
+        // Main Clean Result Card (Sized so the entire screen + threshold + disclaimer fits without scrolling)
         Card(
-            shape = RoundedCornerShape(30.dp),
+            shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = IvorySurface),
             border = BorderStroke(2.dp, statusColor.copy(alpha = 0.45f)),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 22.dp, vertical = 18.dp),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Surface(
                     shape = CircleShape,
                     color = statusBg,
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(52.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Box(
                             modifier = Modifier
-                                .size(26.dp)
+                                .size(22.dp)
                                 .clip(CircleShape)
                                 .background(statusColor)
                         )
@@ -1644,17 +1662,125 @@ private fun MinimalResultScreen(
 
                 Text(
                     text = simpleHeading,
-                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 22.sp),
                     color = DeepNavy,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = simpleAdvice,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary,
                     textAlign = TextAlign.Center
                 )
+
+                // Explicit 3-Tier Triage Thresholds Box from vision_math.py (<35% Low, 35-64% PHC, >=65% Specialist)
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = SoftSandContainer,
+                    border = BorderStroke(1.dp, BorderSubtle),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("specialist_threshold_box")
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (isKn) "ಅಪಾಯದ ಪ್ರಮಾಣ" else "Risk Score",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = TextSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(999.dp),
+                                color = statusBg
+                            ) {
+                                Text(
+                                    text = "${res.finalRiskPercentage}%",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = statusColor,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+
+                        HorizontalDivider(color = BorderSubtle)
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (isKn) "ತಜ್ಞ ವೈದ್ಯರ ಶಿಫಾರಸು ಮಿತಿ" else "Refer to Specialist Threshold",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = DeepNavy,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(999.dp),
+                                color = IvorySurface,
+                                border = BorderStroke(1.dp, BorderSubtle)
+                            ) {
+                                Text(
+                                    text = "≥ 65%",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = StatusHighRed,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+
+                        // 3-Mode Triage Scale from vision_math.py (<35% Safe, 35-64% PHC, >=65% Specialist)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            val isLow = res.badgeColor == "GREEN"
+                            val isMod = res.badgeColor == "AMBER"
+                            val isHigh = res.badgeColor == "RED"
+
+                            TriageTierChip(
+                                label = if (isKn) "<35% ಸಾಮಾನ್ಯ" else "<35% Safe",
+                                active = isLow,
+                                activeBg = StatusLowBg,
+                                activeColor = StatusLowGreen,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TriageTierChip(
+                                label = if (isKn) "35–64% ಪಿಎಚ್‌ಸಿ" else "35–64% PHC",
+                                active = isMod,
+                                activeBg = StatusModBg,
+                                activeColor = StatusModAmber,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TriageTierChip(
+                                label = if (isKn) "≥65% ತಜ್ಞರು" else "≥65% Specialist",
+                                active = isHigh,
+                                activeBg = StatusHighBg,
+                                activeColor = StatusHighRed,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
 
                 Button(
                     onClick = { onListenAdvice(naturalSpokenAdvice) },
@@ -1662,7 +1788,7 @@ private fun MinimalResultScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = SoftPeachContainer),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(46.dp)
                         .testTag("listen_to_advice_button")
                 ) {
                     Icon(
@@ -1673,7 +1799,7 @@ private fun MinimalResultScreen(
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = if (isKn) "ಸಲಹೆಯನ್ನು ಧ್ವನಿಯಲ್ಲಿ ಕೇಳಿ" else "Listen to Advice",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         color = DeepNavy,
                         maxLines = 1,
                         softWrap = false
@@ -1689,14 +1815,14 @@ private fun MinimalResultScreen(
             colors = ButtonDefaults.buttonColors(containerColor = CalmSage),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(48.dp)
                 .testTag("share_whatsapp_button")
         ) {
             Icon(Icons.Default.Share, contentDescription = null, tint = IvorySurface)
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = if (isKn) "ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಕಳುಹಿಸಿ" else "Share on WhatsApp",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = IvorySurface,
                 maxLines = 1,
                 softWrap = false
@@ -1715,7 +1841,7 @@ private fun MinimalResultScreen(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .height(46.dp)
                     .testTag("save_referral_token_button")
             ) {
                 Text(
@@ -1735,7 +1861,7 @@ private fun MinimalResultScreen(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .height(46.dp)
             ) {
                 Text(
                     text = if (isKn) "ಹೊಸ ತಪಾಸಣೆ" else "New Check",
@@ -1750,7 +1876,7 @@ private fun MinimalResultScreen(
 
         // Clear, Visible Button Card for Doctor Clinical Details
         Card(
-            shape = RoundedCornerShape(22.dp),
+            shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = SoftSandContainer),
             border = BorderStroke(1.5.dp, BorderMedium),
             modifier = Modifier
@@ -1761,7 +1887,7 @@ private fun MinimalResultScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -1772,22 +1898,22 @@ private fun MinimalResultScreen(
                     Surface(
                         shape = CircleShape,
                         color = IvorySurface,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(36.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 Icons.Default.MonitorHeart,
                                 contentDescription = null,
                                 tint = DeepNavy,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = if (isKn) "ವೈದ್ಯರಿಗಾಗಿ ತಾಂತ್ರಿಕ ವಿವರಗಳು" else "View Clinical Details",
-                            style = MaterialTheme.typography.titleLarge.copy(fontSize = 16.sp),
+                            style = MaterialTheme.typography.titleMedium,
                             color = DeepNavy,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -1805,7 +1931,7 @@ private fun MinimalResultScreen(
                 Surface(
                     shape = CircleShape,
                     color = DeepNavy,
-                    modifier = Modifier.size(34.dp)
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
@@ -1817,6 +1943,92 @@ private fun MinimalResultScreen(
                     }
                 }
             }
+        }
+
+        // Explicit Clinical Decision-Support Disclaimer on Result Screen (PS 3.1 Deliverable 3)
+        ClinicalDecisionSupportDisclaimer(
+            isKn = isKn,
+            testTagName = "result_disclaimer_banner"
+        )
+    }
+}
+
+@Composable
+private fun ClinicalDecisionSupportDisclaimer(
+    isKn: Boolean,
+    testTagName: String
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = SoftSandContainer,
+        border = BorderStroke(1.dp, BorderSubtle),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(testTagName)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Info,
+                contentDescription = null,
+                tint = TextSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isKn) {
+                    "ಗಮನಿಸಿ: ಇದು ಪ್ರಾಥಮಿಕ ತಪಾಸಣೆಯ ಸಹಾಯಕ ಸಾಧನ ಮಾತ್ರ, ವೈದ್ಯಕೀಯ ರೋಗನಿರ್ಣಯದ ಸಾಧನವಲ್ಲ."
+                } else {
+                    "Disclaimer: This is a clinical decision-support aid for PHC staff, not a diagnostic device."
+                },
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 11.5.sp,
+                    lineHeight = 15.sp
+                ),
+                color = TextSecondary
+            )
+        }
+    }
+}
+
+@Composable
+private fun TriageTierChip(
+    label: String,
+    active: Boolean,
+    activeBg: Color,
+    activeColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = if (active) activeBg else IvorySurface,
+        border = BorderStroke(
+            width = if (active) 1.5.dp else 1.dp,
+            color = if (active) activeColor.copy(alpha = 0.55f) else BorderSubtle
+        ),
+        modifier = modifier.height(26.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 4.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 10.5.sp,
+                    fontWeight = if (active) FontWeight.Bold else FontWeight.Medium
+                ),
+                color = if (active) activeColor else TextSecondary,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -1903,6 +2115,11 @@ private fun DoctorTechnicalDialog(
                             label = if (isKn) "ಅಂದಾಜು ಅಪಾಯ" else "Estimated Risk",
                             value = "${res.finalRiskPercentage}%",
                             highlightValue = true
+                        )
+                        HorizontalDivider(color = BorderSubtle)
+                        DoctorMetricRow(
+                            label = if (isKn) "ತಜ್ಞ ವೈದ್ಯರ ಶಿಫಾರಸು ಮಿತಿ" else "Refer to Specialist Threshold",
+                            value = "≥ 65%"
                         )
                     }
                 }
