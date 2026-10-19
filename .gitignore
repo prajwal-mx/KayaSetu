@@ -1,25 +1,31 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-env/
+# Gradle / Android
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+local.properties
+keystore.properties
+*.jks
+*.keystore
 
-# Tooling caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+# IDE
+.idea/
+*.iml
+.vscode/
 
-# Raw datasets (obtained separately — see scripts/)
-data/raw/
-
-# OS / editor
+# OS
 .DS_Store
 Thumbs.db
-.idea/
-.vscode/
-*.swp
 
-# Logs & local artifacts
+# Logs
 *.log
+
+# Python (aux scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
