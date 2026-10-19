@@ -13,8 +13,30 @@
      - **PHC Doctor Technical Drawer**: Collapsible accordion displaying the 4-stage explainable vision pipeline (Original ROI, Gray-World + CIE-L*a*b* CLAHE, Otsu Lesion Contour, Attention Saliency Heatmap), Fitzpatrick $\text{ITA}^\circ$ skin-tone calibration, ABCD morphological scores, and Bayesian log-odds contribution bars.
 
 2. **100% Offline-First Architecture**:
-   - Bundled with the `4.3 MB` calibrated multimodal model (`models/kayasetu_multimodal.onnx`), Service Worker offline cache, client-side vision & Bayesian inference engine, and native Android Room database persistence.
+   - Bundled with the `4.3 MB` calibrated multimodal model (`app/src/main/assets/kayasetu_multimodal.onnx`), executed fully on-device through ONNX Runtime native libraries alongside the CIE-L*a*b* ABCD vision pipeline and Bayesian log-odds fusion, with native Android Room database persistence. No network connection is required at any point.
 
 ## Safety Disclaimer
 
 **Decision-Support Aid for PHC Triage — Final diagnosis by Medical Officer.** This application is a clinical referral triage aid and not a standalone diagnostic device.
+
+## Download & Install
+
+1. Download the latest APK from the [Releases page](https://github.com/prajwal-mx/KayaSetu/releases/latest).
+2. On the phone, allow installation from unknown sources when prompted.
+3. Open the downloaded APK and install. On first launch the model is unpacked on-device automatically — no internet connection is needed afterwards.
+
+**Requirements:** Android 7.0 (API 24) or newer. The download bundles native ONNX Runtime for `arm64-v8a`, `armeabi-v7a`, `x86` and `x86_64`.
+
+## Build from Source
+
+```bash
+git clone https://github.com/prajwal-mx/KayaSetu.git
+cd KayaSetu
+./gradlew assembleDebug   # or assembleRelease with your own signing config
+```
+
+Requires Android SDK 36 and JDK 17+. The trained model ships inside `app/src/main/assets/`.
+
+## License
+
+Released under the **MIT License** — see [LICENSE](LICENSE).
