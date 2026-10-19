@@ -17,9 +17,8 @@ import kotlinx.serialization.Serializable
 @Entity(tableName = "village_visits")
 data class VillageVisitEntity(
     @PrimaryKey val visitId: String,
-    val sampleId: String,
     val patientName: String,
-    val villageName: String,
+    val ageGroup: String,
     val age: Int,
     val bodyPart: String,
     val badgeColor: String,
@@ -35,11 +34,11 @@ interface VillageVisitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertVisit(visit: VillageVisitEntity)
 
-    @Query("SELECT COUNT(*) FROM village_visits")
-    suspend fun countVisits(): Int
+    @Query("DELETE FROM village_visits WHERE visitId = :id")
+    suspend fun deleteVisit(id: String)
 }
 
-@Database(entities = [VillageVisitEntity::class], version = 1, exportSchema = false)
+@Database(entities = [VillageVisitEntity::class], version = 3, exportSchema = false)
 abstract class KayaSetuDatabase : RoomDatabase() {
     abstract fun villageVisitDao(): VillageVisitDao
 
@@ -52,8 +51,10 @@ abstract class KayaSetuDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     KayaSetuDatabase::class.java,
-                    "kayasetu_offline_visits.db"
-                ).build()
+                    "kayasetu_records_v3.db"
+                )
+                    .fallbackToDestructiveMigration(true)
+                    .build()
                 INSTANCE = instance
                 instance
             }
@@ -68,47 +69,7 @@ class VillageVisitRepository(private val dao: VillageVisitDao) {
         dao.upsertVisit(visit)
     }
 
-    suspend fun seedInitialCoastalVisitsIfEmpty() {
-        if (dao.countVisits() == 0) {
-            dao.upsertVisit(
-                VillageVisitEntity(
-                    visitId = "PHC-8A41F920",
-                    sampleId = "case_high_scc_ulcer",
-                    patientName = "Ramesh Poojary",
-                    villageName = "Bantwal PHC",
-                    age = 61,
-                    bodyPart = "Lower Leg",
-                    badgeColor = "RED",
-                    riskPercentage = 97.4,
-                    timestampMillis = System.currentTimeMillis() - 3600_000L
-                )
-            )
-            dao.upsertVisit(
-                VillageVisitEntity(
-                    visitId = "PHC-3C92E114",
-                    sampleId = "case_mod_infective",
-                    patientName = "Lakshmi Salian",
-                    villageName = "Ullal PHC",
-                    age = 47,
-                    bodyPart = "Arm / Hand",
-                    badgeColor = "AMBER",
-                    riskPercentage = 55.2,
-                    timestampMillis = System.currentTimeMillis() - 1800_000L
-                )
-            )
-            dao.upsertVisit(
-                VillageVisitEntity(
-                    visitId = "PHC-7F10B442",
-                    sampleId = "case_low_benign_tinea",
-                    patientName = "Karthik Gowda",
-                    villageName = "Puttur PHC",
-                    age = 22,
-                    bodyPart = "Trunk / Back",
-                    badgeColor = "GREEN",
-                    riskPercentage = 14.8,
-                    timestampMillis = System.currentTimeMillis() - 900_000L
-                )
-            )
-        }
+    suspend fun deleteVisit(id: String) {
+        dao.deleteVisit(id)
     }
 }

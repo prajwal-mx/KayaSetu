@@ -1,0 +1,30 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Big toe -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.6,2.2 A1.5,1.9 0 1,0 7.6,6.0 A1.5,1.9 0 1,0 7.6,2.2 Z" />
+    <!-- Second toe -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M11.1,2.0 A1.2,1.6 0 1,0 11.1,5.2 A1.2,1.6 0 1,0 11.1,2.0 Z" />
+    <!-- Third toe -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M14.0,2.7 A1.1,1.4 0 1,0 14.0,5.5 A1.1,1.4 0 1,0 14.0,2.7 Z" />
+    <!-- Fourth toe -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M16.5,3.9 A0.95,1.25 0 1,0 16.5,6.4 A0.95,1.25 0 1,0 16.5,3.9 Z" />
+    <!-- Little toe -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M18.4,5.7 A0.85,1.1 0 1,0 18.4,7.9 A0.85,1.1 0 1,0 18.4,5.7 Z" />
+    <!-- Foot sole, arch, and rounded heel -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.2,7.3 C5.9,8.3 5.5,10.3 6.2,12.4 C6.8,14.2 7.7,15.5 7.7,17.3 C7.7,20.0 9.0,22.2 11.4,22.2 C13.8,22.2 15.2,20.1 15.4,17.5 C15.6,15.2 17.1,13.6 17.5,10.9 C17.9,8.3 15.8,6.7 12.5,6.5 C9.9,6.3 8.2,6.5 7.2,7.3 Z" />
+</vector>

@@ -8,98 +8,177 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kayasetu.asha.R
 
-val CreamBackground = Color(0xFFFAF8F5)
+// Soft, warm, minimal palette inspired by reference design
+val CreamBackground = Color(0xFFFDFBF7)
 val IvorySurface = Color(0xFFFFFFFF)
-val SandContainer = Color(0xFFF3EFE6)
-val BorderHairline = Color(0xFFE6E0D3)
-val BorderStrong = Color(0xFFD2C9B8)
-val CharcoalPrimary = Color(0xFF18181B)
-val StoneSecondary = Color(0xFF57534E)
-val MutedText = Color(0xFF78716C)
+val SoftPeachContainer = Color(0xFFF9EAE1)
+val SoftSandContainer = Color(0xFFF4EFEA)
+val SoftSageContainer = Color(0xFFE6F0EC)
+val SoftBlueGray = Color(0xFFDCE5EC)
 
-val ClinicalForest = Color(0xFF15803D)
-val ClinicalForestBg = Color(0xFFECFDF5)
-val ClinicalAmber = Color(0xFFB45309)
-val ClinicalAmberBg = Color(0xFFFFFBEB)
-val ClinicalCrimson = Color(0xFFB91C1C)
-val ClinicalCrimsonBg = Color(0xFFFEF2F2)
-val WhatsAppTeal = Color(0xFF128C7E)
+val DeepNavy = Color(0xFF1E2432)
+val WarmCoral = Color(0xFFE07A5F)
+val SoftGold = Color(0xFFF2CC8F)
+val CalmSage = Color(0xFF3D8B6E)
 
-private val KayaSetuLightScheme = lightColorScheme(
-    primary = CharcoalPrimary,
+val BorderSubtle = Color(0xFFEDE6DF)
+val BorderMedium = Color(0xFFDED4CA)
+val TextPrimary = Color(0xFF1E2432)
+val TextSecondary = Color(0xFF646A78)
+val TextMuted = Color(0xFF8E94A2)
+
+val StatusHighRed = Color(0xFFD64545)
+val StatusHighBg = Color(0xFFFDECEC)
+val StatusModAmber = Color(0xFFD97724)
+val StatusModBg = Color(0xFFFEF3E7)
+val StatusLowGreen = Color(0xFF2E856E)
+val StatusLowBg = Color(0xFFEAF6F2)
+
+// Single clean sans-serif font family across the entire app
+val AppFontFamily = FontFamily(
+    Font(R.font.plus_jakarta_sans, FontWeight.Normal),
+    Font(R.font.plus_jakarta_sans, FontWeight.Medium),
+    Font(R.font.plus_jakarta_sans, FontWeight.SemiBold),
+    Font(R.font.plus_jakarta_sans, FontWeight.Bold)
+)
+
+private val KayaSetuColorScheme = lightColorScheme(
+    primary = DeepNavy,
     onPrimary = IvorySurface,
-    primaryContainer = SandContainer,
-    onPrimaryContainer = CharcoalPrimary,
-    secondary = ClinicalForest,
+    primaryContainer = SoftPeachContainer,
+    onPrimaryContainer = DeepNavy,
+    secondary = WarmCoral,
     onSecondary = IvorySurface,
-    secondaryContainer = ClinicalForestBg,
-    onSecondaryContainer = ClinicalForest,
-    tertiary = ClinicalAmber,
+    secondaryContainer = SoftSandContainer,
+    onSecondaryContainer = DeepNavy,
+    tertiary = CalmSage,
     onTertiary = IvorySurface,
-    tertiaryContainer = ClinicalAmberBg,
-    onTertiaryContainer = ClinicalAmber,
-    error = ClinicalCrimson,
+    tertiaryContainer = SoftSageContainer,
+    onTertiaryContainer = CalmSage,
+    error = StatusHighRed,
     onError = IvorySurface,
-    errorContainer = ClinicalCrimsonBg,
-    onErrorContainer = ClinicalCrimson,
+    errorContainer = StatusHighBg,
+    onErrorContainer = StatusHighRed,
     background = CreamBackground,
-    onBackground = CharcoalPrimary,
+    onBackground = TextPrimary,
     surface = IvorySurface,
-    onSurface = CharcoalPrimary,
-    surfaceVariant = SandContainer,
-    onSurfaceVariant = StoneSecondary,
-    outline = BorderStrong
+    onSurface = TextPrimary,
+    surfaceVariant = SoftSandContainer,
+    onSurfaceVariant = TextSecondary,
+    outline = BorderMedium
 )
 
 val KayaSetuShapes = Shapes(
-    small = RoundedCornerShape(14.dp),
-    medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(26.dp),
+    small = RoundedCornerShape(16.dp),
+    medium = RoundedCornerShape(24.dp),
+    large = RoundedCornerShape(32.dp),
     extraLarge = RoundedCornerShape(999.dp)
 )
 
 val KayaSetuTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 34.sp,
+        lineHeight = 40.sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp,
+        lineHeight = 36.sp
+    ),
     displaySmall = TextStyle(
-        fontFamily = FontFamily.Serif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 32.sp,
-        lineHeight = 38.sp
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 30.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = FontFamily.Serif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 26.sp,
-        lineHeight = 32.sp
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        lineHeight = 26.sp
     ),
     titleLarge = TextStyle(
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 24.sp
     ),
+    titleMedium = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 22.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 15.sp,
         lineHeight = 22.sp
     ),
-    labelMedium = TextStyle(
-        fontFamily = FontFamily.Monospace,
+    bodyMedium = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 13.sp,
+        lineHeight = 18.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = AppFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 13.sp,
+        lineHeight = 18.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = AppFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 15.sp
     )
 )
 
 @Composable
 fun KayaSetuTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = KayaSetuLightScheme,
+        colorScheme = KayaSetuColorScheme,
         shapes = KayaSetuShapes,
         typography = KayaSetuTypography,
         content = content

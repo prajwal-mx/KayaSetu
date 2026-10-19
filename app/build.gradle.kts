@@ -10,7 +10,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.kayasetu.asha"
+        applicationId = "com.aistudio.kayasetu.phctrg"
         minSdk = 24
         targetSdk = 36
         versionCode = 2
@@ -44,6 +44,10 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    androidResources {
+        noCompress += listOf("onnx", "data", "mp3")
     }
 }
 
